@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beyond Earth — Start Session</title>
+  <link rel="stylesheet" href="theme.css">
+  <link rel="stylesheet" href="style.css">
+
+</head>
+<body class="landing-body">
+  <a class="skip-link" href="#startSessionBtn">Skip to the start button</a>
+
+  <!-- 2D starfield (pure canvas) -->
+  <canvas id="spaceCanvas" aria-hidden="true"></canvas>
+
+  <!-- خلفية الفضاء: سُدُم + مدارات + كواكب (كله 2D و CSS) -->
+  <div class="landing-scene" aria-hidden="true">
+    <span class="scene-orbit scene-orbit--outer"></span>
+    <span class="scene-orbit scene-orbit--inner"></span>
+
+    <svg class="scene-planet" viewBox="0 0 220 220" fill="none">
+      <defs>
+        <radialGradient id="bigPlanetGrad" cx="34%" cy="28%" r="72%">
+          <stop offset="0%" stop-color="#7ce8ff" />
+          <stop offset="46%" stop-color="#2b6cb0" />
+          <stop offset="100%" stop-color="#0d1b3a" />
+        </radialGradient>
+      </defs>
+      <circle cx="110" cy="110" r="86" fill="url(#bigPlanetGrad)" />
+      <circle cx="110" cy="110" r="86" stroke="rgba(158,190,240,0.45)" stroke-width="2" />
+      <ellipse cx="110" cy="110" rx="128" ry="34" transform="rotate(-18 110 110)" stroke="#ffca58" stroke-width="6" opacity="0.5" />
+    </svg>
+
+    <svg class="scene-moon" viewBox="0 0 90 90" fill="none">
+      <circle cx="45" cy="45" r="32" fill="#ffd166" stroke="#0d1b3a" stroke-width="3" />
+      <circle cx="35" cy="37" r="6" fill="#e6ac35" />
+      <circle cx="55" cy="54" r="4" fill="#e6ac35" />
+      <circle cx="52" cy="32" r="3" fill="#e6ac35" />
+    </svg>
+  </div>
+
+  <!-- topbar بسيط: البراند فقط -->
+  <header class="topbar landing-topbar" role="banner">
+    <span class="brand">
+      <span class="brand-orbit" aria-hidden="true">
+        <svg viewBox="0 0 36 36" width="32" height="32" fill="none">
+          <circle cx="18" cy="18" r="9" fill="currentColor" class="planet-core" />
+          <ellipse cx="18" cy="18" rx="16" ry="6" transform="rotate(-22 18 18)" stroke="currentColor" stroke-width="2.2" />
+          <circle cx="29" cy="10" r="2.5" fill="currentColor" class="moon-dot" />
+        </svg>
+      </span>
+      <span class="brand-text">BEYOND EARTH</span>
+    </span>
+  </header>
+
+  <!-- ================= SIDE MISSION MENU (أدوات الرؤية) ================= -->
+  <button
+    type="button"
+    class="menu-toggle"
+    id="menuToggleBtn"
+    aria-expanded="false"
+    aria-controls="sidePanel"
+    aria-label="Open mission controls — comfort and vision tools"
+    title="Mission controls"
+  >
+    <span aria-hidden="true"></span>
+    <span aria-hidden="true"></span>
+    <span aria-hidden="true"></span>
+  </button>
+
+  <div class="panel-scrim" id="panelScrim" aria-hidden="true"></div>
+
+  <aside class="side-panel" id="sidePanel" aria-label="Mission controls panel" aria-hidden="true">
+    <div class="side-panel-head">
+      <div>
+        <p class="side-kicker">MISSION CONTROLS</p>
+        <h2 class="side-title">Make it yours</h2>
+      </div>
+      <button type="button" class="panel-close-btn" id="panelCloseBtn" aria-label="Close mission controls">✕</button>
+    </div>
+
+    <div class="side-group">
+      <p class="side-group-label">SEE IT BETTER</p>
+      <button type="button" class="side-option" id="fontSizeToggle" aria-pressed="false">
+        <span class="side-option-icon" aria-hidden="true">Aa+</span>
+        <span class="side-option-text">
+          <strong>Big Text</strong>
+          <small>Make all words bigger and easier</small>
+        </span>
+        <span class="side-option-state" aria-hidden="true">Off</span>
+      </button>
+      <button type="button" class="side-option" id="contrastToggle" aria-pressed="false">
+        <span class="side-option-icon" aria-hidden="true">◐</span>
+        <span class="side-option-text">
+          <strong>High Contrast</strong>
+          <small>Sharp black &amp; bright colors</small>
+        </span>
+        <span class="side-option-state" aria-hidden="true">Off</span>
+      </button>
+      <button type="button" class="side-option" id="motionToggle" aria-pressed="false">
+        <span class="side-option-icon" aria-hidden="true">✦</span>
+        <span class="side-option-text">
+          <strong>Calm Sky</strong>
+          <small>Stop the stars and orbits from moving</small>
+        </span>
+        <span class="side-option-state" aria-hidden="true">Off</span>
+      </button>
+    </div>
+
+    <p class="side-foot-note">Tip: press <kbd>Esc</kbd> to close this panel.</p>
+  </aside>
+
+  <!-- ================= PAGE 1 — LANDING ================= -->
+  <main class="landing" id="mainContent">
+    <div class="start-wrap">
+      <p class="start-kicker">SPACE DISCOVERY MISSION</p>
+      <h1 class="landing-title">Ready, <em>explorer?</em></h1>
+      <p class="landing-sub">The station is waiting for you. Press the button to begin the session.</p>
+
+      <div class="start-button-wrap">
+        <span class="start-ring" aria-hidden="true"></span>
+
+        <a
+          class="start-session-btn"
+          id="startSessionBtn"
+          href="session.html"
+        >
+          <span>Start Session</span>
+          <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="4" y1="12" x2="20" y2="12"></line>
+            <polyline points="13 5 20 12 13 19"></polyline>
+          </svg>
+        </a>
+      </div>
+
+      <p class="start-caption">Next stop: the mission story</p>
+    </div>
+  </main>
+
+  <p class="landing-foot">BEYOND EARTH · SPACE DISCOVERY MISSION</p>
+  <script src="script.js"></script>
+</body>
+</html>

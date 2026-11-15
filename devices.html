@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beyond Earth — Space Devices</title>
+  <link rel="stylesheet" href="catalog.css">
+
+</head>
+<body>
+  <a class="skip-link" href="#devices">Skip to the device list</a>
+
+  <!-- 2D starfield (pure canvas, light, pauses in Calm Sky mode) -->
+  <canvas id="spaceCanvas" aria-hidden="true"></canvas>
+
+  <!-- ================= TOP BAR: brand + simple nav only ================= -->
+  <header class="topbar" role="banner">
+    <a class="brand" href="index.html" aria-label="Beyond Earth — home">
+      <span class="brand-orbit" aria-hidden="true">
+        <svg viewBox="0 0 36 36" width="32" height="32" fill="none">
+          <circle cx="18" cy="18" r="9" fill="currentColor" class="planet-core" />
+          <ellipse cx="18" cy="18" rx="16" ry="6" transform="rotate(-22 18 18)" stroke="currentColor" stroke-width="2.2" />
+          <circle cx="29" cy="10" r="2.5" fill="currentColor" class="moon-dot" />
+        </svg>
+      </span>
+      <span class="brand-text">BEYOND EARTH</span>
+    </a>
+
+    <nav class="main-nav" aria-label="Main">
+      <a href="session.html">← Session</a>
+      <a href="#devices">Devices</a>
+    </nav>
+  </header>
+
+  <!-- ================= SIDE MISSION MENU (the ☰ tab) ================= -->
+  <button
+    type="button"
+    class="menu-toggle"
+    id="menuToggleBtn"
+    aria-expanded="false"
+    aria-controls="sidePanel"
+    aria-label="Open mission controls — comfort and vision tools"
+    title="Mission controls"
+  >
+    <span aria-hidden="true"></span>
+    <span aria-hidden="true"></span>
+    <span aria-hidden="true"></span>
+  </button>
+
+  <div class="panel-scrim" id="panelScrim" aria-hidden="true"></div>
+
+  <aside class="side-panel" id="sidePanel" aria-label="Mission controls panel" aria-hidden="true">
+    <div class="side-panel-head">
+      <div>
+        <p class="side-kicker">MISSION CONTROLS</p>
+        <h2 class="side-title">Make it yours</h2>
+      </div>
+      <button type="button" class="panel-close-btn" id="panelCloseBtn" aria-label="Close mission controls">✕</button>
+    </div>
+
+    <nav class="side-jump-links" aria-label="Jump to section">
+      <a href="#devices">① All devices</a>
+      <a href="#group-moon">② The Moon</a>
+      <a href="#group-mars">③ Mars</a>
+      <a href="#group-deep">④ Deep space</a>
+    </nav>
+
+    <div class="side-group">
+      <p class="side-group-label">SEE IT BETTER</p>
+      <button type="button" class="side-option" id="fontSizeToggle" aria-pressed="false">
+        <span class="side-option-icon" aria-hidden="true">Aa+</span>
+        <span class="side-option-text">
+          <strong>Big Text</strong>
+          <small>Make all words bigger and easier</small>
+        </span>
+        <span class="side-option-state" aria-hidden="true">Off</span>
+      </button>
+      <button type="button" class="side-option" id="contrastToggle" aria-pressed="false">
+        <span class="side-option-icon" aria-hidden="true">◐</span>
+        <span class="side-option-text">
+          <strong>High Contrast</strong>
+          <small>Sharp black &amp; bright colors</small>
+        </span>
+        <span class="side-option-state" aria-hidden="true">Off</span>
+      </button>
+      <button type="button" class="side-option" id="motionToggle" aria-pressed="false">
+        <span class="side-option-icon" aria-hidden="true">✦</span>
+        <span class="side-option-text">
+          <strong>Calm Sky</strong>
+          <small>Stop the stars from moving</small>
+        </span>
+        <span class="side-option-state" aria-hidden="true">Off</span>
+      </button>
+    </div>
+
+    <p class="side-foot-note">Tip: press <kbd>Esc</kbd> to close this panel.</p>
+  </aside>
+
+  <!-- ================= PAGE 1 ================= -->
+  <main id="mainContent">
+    <!-- ---------- Introduction (kept as it is) ---------- -->
+    <section class="hero" id="home">
+      <div class="hero-copy">
+        <div class="badge-row">
+          <span class="space-pill">SPACE DISCOVERY MISSION</span>
+        </div>
+
+        <h1>Ready for your <em>space adventure?</em></h1>
+        <p class="hero-intro">
+          Discover 13 machines from the Moon, Mars and deep space. Choose one to see its story, a real NASA photograph, and an illustrative 3D model.
+        </p>
+
+        <div class="hero-actions">
+          <a class="btn-launch" href="#devices">
+            <span>Choose a device</span>
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- pure 2D space illustration -->
+      <div class="hero-space-art" aria-hidden="true">
+        <svg class="orbital-svg" viewBox="0 0 520 460" fill="none">
+          <circle cx="270" cy="230" r="190" stroke="var(--orbit-line)" stroke-width="1.5" stroke-dasharray="6 10" />
+          <circle cx="270" cy="230" r="138" stroke="var(--orbit-line-strong)" stroke-width="1.5" />
+
+          <polyline points="68,96 118,68 158,92" stroke="var(--accent-cyan)" stroke-width="1.5" stroke-opacity="0.55" />
+          <circle cx="68" cy="96" r="4" fill="var(--gold)" />
+          <circle cx="118" cy="68" r="5" fill="var(--cyan)" />
+          <circle cx="158" cy="92" r="3.5" fill="var(--gold)" />
+
+          <path d="M 118 258 A 162 46 -18 0 1 422 198" stroke="var(--gold)" stroke-width="10" stroke-linecap="round" opacity="0.45" />
+
+          <defs>
+            <radialGradient id="heroPlanetGrad" cx="35%" cy="30%" r="70%">
+              <stop offset="0%" stop-color="#7ce8ff" />
+              <stop offset="48%" stop-color="#2b6cb0" />
+              <stop offset="100%" stop-color="#13264e" />
+            </radialGradient>
+            <clipPath id="planetClip">
+              <circle cx="270" cy="230" r="92" />
+            </clipPath>
+          </defs>
+          <circle cx="270" cy="230" r="92" fill="url(#heroPlanetGrad)" />
+          <g clip-path="url(#planetClip)" opacity="0.32">
+            <path d="M160 198 Q270 175 380 205" stroke="#ffffff" stroke-width="14" stroke-linecap="round" />
+            <path d="M155 242 Q270 222 385 252" stroke="#ffd166" stroke-width="10" stroke-linecap="round" />
+            <path d="M170 280 Q270 265 375 288" stroke="#7ce8ff" stroke-width="8" stroke-linecap="round" />
+          </g>
+          <circle cx="270" cy="230" r="92" stroke="var(--line-strong)" stroke-width="2.5" />
+
+          <path d="M 422 198 A 162 46 -18 0 1 118 258" stroke="var(--gold)" stroke-width="10" stroke-linecap="round" />
+
+          <g class="orbiting-moon">
+            <circle cx="408" cy="135" r="20" fill="#ffd166" stroke="#101935" stroke-width="3" />
+            <circle cx="402" cy="130" r="4" fill="#e6ac35" />
+            <circle cx="414" cy="141" r="3" fill="#e6ac35" />
+          </g>
+
+          <g class="orbiting-probe">
+            <rect x="104" y="318" width="34" height="22" rx="6" fill="#ff7b54" stroke="#ffffff" stroke-width="2" />
+            <rect x="82" y="323" width="18" height="12" rx="2" fill="#7ce8ff" />
+            <rect x="142" y="323" width="18" height="12" rx="2" fill="#7ce8ff" />
+          </g>
+        </svg>
+      </div>
+    </section>
+
+    <!-- ---------- الأجهزة: مجموعتين (Zamoon / Mars) ---------- -->
+    <section class="section" id="devices">
+      <div class="section-header">
+        <div>
+          <p class="eyebrow">STEP 01 — CHOOSE A DEVICE</p>
+          <h2>Mission Devices</h2>
+        </div>
+        <p class="section-desc">
+          Real NASA photographs and mission stories inspired by the <a class="source-link" target="_blank" rel="noopener" href="https://www.spaceappschallenge.org/2026/challenges/nasas-discarded-equipment-storytelling/?tab=resources">official challenge resources ↗</a>. <span class="dev-hint" id="deviceCountHint"></span>
+        </p>
+      </div>
+
+      <!-- كل مجموعة بتترسم من data.js -->
+      <div class="device-groups" id="deviceGroups"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-brand">
+      <strong>BEYOND EARTH</strong>
+      <span>NASA Space Apps Challenge · Independent educational project</span>
+    </div>
+    <a href="#home" class="back-top-link">Back to top ↑</a>
+  </footer>
+
+  <div class="space-toast" id="spaceToast" role="status" aria-live="polite" hidden></div>
+
+  <script src="common.js"></script>
+  <script src="data.js"></script>
+  <script src="catalog.js"></script>
+</body>
+</html>

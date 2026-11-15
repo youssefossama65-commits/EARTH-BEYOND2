@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Beyond Earth – Ship Bay</title>
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="session.css">
+</head>
+<body>
+<nav class="session-nav"><a class="home-link" href="index.html">← Start</a><a class="home-link next-link" href="devices.html">Explore devices →</a></nav>
+<div id="cc"></div>
+<div id="cross"></div>
+<div id="prompt" class="hidden"></div>
+<div id="hint">WASD / arrows walk · mouse look · E or click inspect · Esc release</div>
+<div id="suitHud">SUIT: <b id="suitState">MAG-WALK</b> · Shift Boost · Space Jump/Glide · C Crouch · Q Dash · RMB/Z Zoom</div>
+
+<div id="tourProgressWrap" class="hidden"><div id="tourProgress"></div></div>
+<div id="tourTop" class="hidden">
+  <div class="tourPill"><span class="tourDot"></span><span id="tourPhaseLabel">GUIDED SESSION · AUTOPILOT</span></div>
+  <div class="tourPill"><span id="tourClock">00:00 / 03:56</span><span class="pace-controls" aria-label="Audio and tour speed"><button type="button" class="pace-down" aria-label="Decrease audio speed">−</button><output class="pace-value" aria-live="polite">1.00×</output><button type="button" class="pace-up" aria-label="Increase audio speed">+</button></span><button id="replayBtn" class="hidden" type="button">Replay Session</button></div>
+</div>
+<div id="tourCard">
+  <span class="tag" id="tcTag">DEEP SPACE ARCHIVE</span>
+  <h3 id="tcName"></h3>
+  <p id="tcSum"></p>
+  <div class="mission"><b>Mission:</b> <span id="tcTask"></span></div>
+  <div class="partsTitle">Key Parts &amp; Systems</div>
+  <ul id="tcParts"></ul>
+</div>
+<div id="tourSub" class="hidden"></div>
+
+<div id="overlay" class="layer"><div class="card" style="text-align:center">
+  <span class="session-kicker">SPACE DISCOVERY MISSION</span>
+  <h1>Beyond <em>Earth</em></h1>
+  <p>Step inside the deep-space archive. Begin the guided session to tour every legendary machine left beyond Earth.</p>
+  <button type="button" class="btn" id="startSessionBtn">Begin guided session →</button>
+  <div class="speed-setup" aria-label="Audio and tour speed">
+    <span>Audio speed</span>
+    <button type="button" class="pace-down" aria-label="Decrease audio speed">−</button>
+    <output class="pace-value" aria-live="polite">1.00×</output>
+    <button type="button" class="pace-up" aria-label="Increase audio speed">+</button>
+  </div>
+  <p class="audio-note">Captions stay visible. Speed changes apply to the next spoken phrase; the tour continues.</p>
+  <p id="sessionError" role="alert" hidden></p>
+</div></div>
+
+<div id="info" class="layer hidden"><div class="card">
+  <h2 id="iName"></h2>
+  <p id="iSum"></p>
+  <p><b>Mission:</b> <span id="iTask"></span></p>
+  <p><b>Key parts</b></p><ul id="iParts"></ul>
+  <button type="button" class="btn" id="iClose">Back to the bay</button>
+</div></div>
+
+<script src="three.min.js"></script>
+<script src="models.js"></script>
+<script src="session.js"></script>
+</body>
+</html>

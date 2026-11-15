@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beyond Earth — Device</title>
+  <link rel="stylesheet" href="catalog.css">
+
+</head>
+<body>
+  <a class="skip-link" href="#device-view">Skip to the device</a>
+
+  <canvas id="spaceCanvas" aria-hidden="true"></canvas>
+
+  <header class="topbar" role="banner">
+    <a class="brand" href="index.html" aria-label="Beyond Earth — home">
+      <span class="brand-orbit" aria-hidden="true">
+        <svg viewBox="0 0 36 36" width="32" height="32" fill="none">
+          <circle cx="18" cy="18" r="9" fill="currentColor" class="planet-core" />
+          <ellipse cx="18" cy="18" rx="16" ry="6" transform="rotate(-22 18 18)" stroke="currentColor" stroke-width="2.2" />
+          <circle cx="29" cy="10" r="2.5" fill="currentColor" class="moon-dot" />
+        </svg>
+      </span>
+      <span class="brand-text">BEYOND EARTH</span>
+    </a>
+
+    <nav class="main-nav" aria-label="Main">
+      <a href="devices.html">← All devices</a>
+      <a href="#device-view">Device</a>
+    </nav>
+  </header>
+
+  <!-- ================= SIDE MISSION MENU ================= -->
+  <button
+    type="button"
+    class="menu-toggle"
+    id="menuToggleBtn"
+    aria-expanded="false"
+    aria-controls="sidePanel"
+    aria-label="Open mission controls — comfort and vision tools"
+    title="Mission controls"
+  >
+    <span aria-hidden="true"></span>
+    <span aria-hidden="true"></span>
+    <span aria-hidden="true"></span>
+  </button>
+
+  <div class="panel-scrim" id="panelScrim" aria-hidden="true"></div>
+
+  <aside class="side-panel" id="sidePanel" aria-label="Mission controls panel" aria-hidden="true">
+    <div class="side-panel-head">
+      <div>
+        <p class="side-kicker">MISSION CONTROLS</p>
+        <h2 class="side-title">Make it yours</h2>
+      </div>
+      <button type="button" class="panel-close-btn" id="panelCloseBtn" aria-label="Close mission controls">✕</button>
+    </div>
+
+    <nav class="side-jump-links" aria-label="Jump to section">
+      <a href="devices.html">← All devices</a>
+      <a href="#device-view">① The picture</a>
+      <a href="#parts">② Parts of this device</a>
+    </nav>
+
+    <div class="side-group">
+      <p class="side-group-label">SEE IT BETTER</p>
+      <button type="button" class="side-option" id="fontSizeToggle" aria-pressed="false">
+        <span class="side-option-icon" aria-hidden="true">Aa+</span>
+        <span class="side-option-text">
+          <strong>Big Text</strong>
+          <small>Make all words bigger and easier</small>
+        </span>
+        <span class="side-option-state" aria-hidden="true">Off</span>
+      </button>
+      <button type="button" class="side-option" id="contrastToggle" aria-pressed="false">
+        <span class="side-option-icon" aria-hidden="true">◐</span>
+        <span class="side-option-text">
+          <strong>High Contrast</strong>
+          <small>Sharp black &amp; bright colors</small>
+        </span>
+        <span class="side-option-state" aria-hidden="true">Off</span>
+      </button>
+      <button type="button" class="side-option" id="motionToggle" aria-pressed="false">
+        <span class="side-option-icon" aria-hidden="true">✦</span>
+        <span class="side-option-text">
+          <strong>Calm Sky</strong>
+          <small>Stop the stars from moving</small>
+        </span>
+        <span class="side-option-state" aria-hidden="true">Off</span>
+      </button>
+    </div>
+
+    <p class="side-foot-note">Tip: press <kbd>Esc</kbd> to close this panel.</p>
+  </aside>
+
+  <!-- ================= PAGE 2 — DEVICE ================= -->
+  <main id="mainContent">
+    <!-- ---------- device header ---------- -->
+    <section class="device-head">
+      <div class="device-head-copy">
+        <a class="back-link" href="devices.html">← Back to all devices</a>
+        <div class="device-title-row">
+          <span class="slot-badge" id="deviceCode">DEVICE 01</span>
+        </div>
+        <h1 id="deviceTitle">Device name slot</h1>
+        <p class="device-tagline" id="deviceTagline">short line about this device</p>
+        <p class="device-summary" id="deviceSummary">Short summary slot for this device.</p>
+      </div>
+    </section>
+
+    <!-- ---------- the picture + the arrows coming out of it ---------- -->
+    <section class="section" id="device-view">
+      <div class="device-view">
+        <div class="device-stage" id="deviceStage">
+          <div class="media-slot device-view-slot">
+            <svg class="placeholder-schematic" viewBox="0 0 520 340" fill="none" aria-hidden="true">
+              <rect x="24" y="22" width="472" height="296" rx="18" stroke="currentColor" stroke-width="2.5" stroke-dasharray="10 10" opacity="0.4" />
+              <circle cx="260" cy="170" r="86" stroke="currentColor" stroke-width="2" opacity="0.3" />
+              <circle cx="260" cy="170" r="48" stroke="currentColor" stroke-width="2" stroke-dasharray="6 6" opacity="0.4" />
+              <line x1="24" y1="170" x2="496" y2="170" stroke="currentColor" stroke-width="1.5" opacity="0.22" />
+              <line x1="260" y1="22" x2="260" y2="318" stroke="currentColor" stroke-width="1.5" opacity="0.22" />
+            </svg>
+            <img class="media-img" id="deviceImage" alt="" hidden />
+            <div class="media-caption">
+              <span class="media-tag">2D IMAGE SLOT · DEVICE</span>
+              <strong>Photo unavailable</strong>
+              <p>See the NASA source below.</p>
+            </div>
+          </div>
+
+          <!-- زر شفاف فوق الصورة كلها: بيفتح/يقفل الأسهم -->
+          <button
+            type="button"
+            class="stage-tap"
+            id="stageTap"
+            aria-expanded="false"
+            aria-label="Show the options of this device"
+          ></button>
+
+          <div class="image-arrows">
+            <button type="button" class="arrow-btn arrow-details" data-target="details">
+              <span class="arrow-glyph" aria-hidden="true">↖</span><span>Details</span>
+            </button>
+            <button type="button" class="arrow-btn arrow-parts" data-target="parts">
+              <span class="arrow-glyph" aria-hidden="true">↗</span><span>Parts</span>
+            </button>
+            <button type="button" class="arrow-btn arrow-3d" data-target="three-d">
+              <span class="arrow-glyph" aria-hidden="true">↓</span><span>3D model</span>
+            </button>
+          </div>
+
+          <span class="stage-hint" id="stageHint">Tap the picture to show the arrows</span>
+        </div>
+        <p class="photo-credit" id="photoCaption"></p>
+        <p class="source-line"><a id="photoSource" target="_blank" rel="noopener">NASA photograph ↗</a> · <a id="missionSource" target="_blank" rel="noopener">NASA mission source ↗</a> · <a href="https://www.spaceappschallenge.org/2026/challenges/nasas-discarded-equipment-storytelling/?tab=resources" target="_blank" rel="noopener">Challenge resources ↗</a></p>
+
+        <!-- ---------- what the arrows point at ---------- -->
+        <div class="detail-box" data-panel="details">
+          <span class="box-label">DETAILS</span>
+          <p id="deviceDetails">Details slot — the full explanation of this device goes here.</p>
+        </div>
+
+        <div class="parts-block" id="parts" data-panel="parts">
+          <div class="parts-block-head">
+            <div>
+              <p class="eyebrow">THE PARTS</p>
+              <h3>What is inside this device?</h3>
+            </div>
+            <span class="dev-hint" id="partsCountHint"></span>
+          </div>
+
+          <div class="parts-layout">
+            <div class="parts-list" id="partsList" role="tablist" aria-label="Parts of this device"></div>
+
+            <article class="part-detail-card" id="partDetailCard" role="tabpanel" aria-live="polite">
+              <div class="part-card-top">
+                <span class="part-pill" id="partBadge">PART 01</span>
+              </div>
+              <h3 id="partTitle">Part name slot</h3>
+              <p class="part-description" id="partDescription">Short description slot for this part.</p>
+              <div class="how-it-works-box">
+                <span class="box-label">HOW IT HELPS IN SPACE</span>
+                <p id="partUsage">Usage slot — how this part helps in space.</p>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <!-- ---------- 3D handoff ---------- -->
+        <div class="launch-3d-box" data-panel="three-d">
+          <button type="button" class="btn-launch-3d" id="launch3DBtn">
+            <span>Enter this device’s 3D room</span>
+            <span aria-hidden="true">↗</span>
+          </button>
+          <small class="handoff-note" id="handoffStatus"></small>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-brand">
+      <strong>BEYOND EARTH</strong>
+      <span>NASA Space Apps Challenge · Independent educational project</span>
+    </div>
+    <a href="devices.html" class="back-top-link">← All devices</a>
+  </footer>
+
+  <div class="space-toast" id="spaceToast" role="status" aria-live="polite" hidden></div>
+
+  <script src="common.js"></script>
+  <script src="data.js"></script>
+  <script src="device.js"></script>
+</body>
+</html>

@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Beyond Earth – 3D Room</title>
+
+<style>
+:root{--cy:#70d9ee;--pn:rgba(8,18,32,.92);--tx:#edf3f8}
+html,body{margin:0;height:100%;overflow:hidden;background:#030b18;color:var(--tx);font:15px/1.55 "DM Sans",system-ui,sans-serif;user-select:none}
+canvas{display:block}
+.layer{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.card{background:var(--pn);border:1px solid rgba(112,217,238,.75);box-shadow:0 20px 60px rgba(0,0,0,.65),inset 0 0 24px rgba(112,217,238,.08);backdrop-filter:blur(12px);padding:26px 30px;max-width:420px;max-height:84vh;overflow:auto}
+h1,h2{font:700 34px/1 "Barlow Condensed",sans-serif;margin:0 0 10px;color:var(--cy);letter-spacing:.5px}
+h3{font:600 22px/1.1 "Barlow Condensed",sans-serif;margin:0;color:var(--cy)}
+p{margin:8px 0}.dim{opacity:.7;font-size:13px}
+button,.btn{font:inherit;color:var(--tx);background:#111f30;border:1px solid rgba(112,217,238,.5);padding:8px 14px;cursor:pointer;text-decoration:none;display:inline-block;transition:background .15s,color .15s}
+button:hover,.btn:hover,button.on{background:var(--cy);color:#06111b}
+button:focus-visible,.btn:focus-visible{outline:2px solid var(--cy);outline-offset:3px}
+#ov{background:rgba(3,11,24,.88);cursor:pointer;z-index:10}
+#desc{position:absolute;right:24px;top:50%;transform:translateY(-50%);pointer-events:none;z-index:5}
+#adv{z-index:8;justify-content:flex-end;padding-right:28px;background:linear-gradient(90deg,transparent 45%,rgba(3,11,24,.72) 100%)}
+#cross{position:absolute;top:50%;left:50%;width:6px;height:6px;margin:-3px;border-radius:50%;background:var(--cy);box-shadow:0 0 8px var(--cy);pointer-events:none;z-index:4}
+#hint{position:absolute;left:16px;bottom:14px;font-size:12px;opacity:.72;background:rgba(5,12,24,.7);padding:6px 12px;border:1px solid rgba(112,217,238,.25);z-index:4}
+#pl{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+#pl button.on { background:#ffca58; border-color:#ffca58; color:#081021; font-weight:900; }
+.hide{display:none!important}
+
+:root{--cy:#5de2ff;--pn:rgba(10,19,40,.9);--tx:#f5f8ff} html,body{font-family:"Trebuchet MS","Segoe UI",sans-serif} h1,h2,h3{font-family:"Trebuchet MS","Segoe UI",sans-serif} .card{border-radius:18px 26px 18px 26px;border:2px solid rgba(158,190,240,.5);box-shadow:7px 7px 0 rgba(93,226,255,.35),0 20px 50px #0008} button,.btn{border-radius:10px 14px 10px 14px} h1,h2{color:#ffca58}
+
+#ov { padding:16px; box-sizing:border-box; cursor:default; }
+#ov .card { width:min(450px,100%); box-sizing:border-box; }
+#ov .card h1 { font-size:clamp(1.8rem,6vw,2.6rem); line-height:1.1; }
+#ov .room-actions { display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:18px; }
+#ov #enterRoom { background:#ffca58; color:#081021; border:2px solid #081021; box-shadow:4px 4px 0 #5de2ff; font-weight:bold; }
+.room-nav { position:fixed; left:14px; top:14px; z-index:12; }
+.room-nav a, #inspectNow { background:rgba(10,19,40,.92); border:1px solid rgba(158,190,240,.5); border-radius:10px; padding:8px 12px; color:#f5f8ff; font-size:13px; font-weight:bold; text-decoration:none; }
+#inspectNow { position:fixed; right:14px; top:14px; z-index:7; cursor:pointer; }
+#mobileControls { position:fixed; bottom:16px; left:16px; z-index:6; display:grid; grid-template-columns:repeat(3,48px); grid-template-rows:repeat(2,44px); gap:5px; touch-action:none; }
+#mobileControls button { padding:0; background:rgba(10,19,40,.9); border:1px solid rgba(93,226,255,.6); border-radius:10px; font-size:20px; touch-action:none; }
+#mobileControls .up { grid-column:2; } #mobileControls .left { grid-column:1; grid-row:2; } #mobileControls .down { grid-column:2; grid-row:2; } #mobileControls .right { grid-column:3; grid-row:2; }
+#roomError { color:#ffca58; } #roomError:empty { display:none; }
+@media(max-width:700px) { #hint { left:auto; right:12px; bottom:16px; max-width:42%; font-size:10px; } #desc { top:auto; bottom:120px; left:12px; right:12px; max-height:24vh; padding:12px; overflow:auto; transform:none; } #desc h2 { font-size:22px; } #adv { justify-content:center; padding:12px; background:rgba(3,11,24,.8); } #adv .card { width:100%; max-height:76vh; } }
+</style>
+</head>
+<body>
+<nav class="room-nav"><a id="roomBackTop" href="devices.html">← Back to story</a></nav>
+<button type="button" id="inspectNow" class="hide">Inspect parts</button>
+<div id="mobileControls" class="hide" aria-label="Movement controls">
+  <button class="up" data-key="f" aria-label="Walk forward">↑</button><button class="left" data-key="l" aria-label="Walk left">←</button><button class="down" data-key="b" aria-label="Walk backward">↓</button><button class="right" data-key="r" aria-label="Walk right">→</button>
+</div>
+<div id="cross"></div>
+<div id="hint">WASD walk · mouse look · E advanced parts · L leave room · Esc release mouse</div>
+
+<div id="desc" class="card hide">
+  <h2 id="dn"></h2><p id="ds"></p>
+  <p><b>Mission:</b> <span id="dt"></span></p>
+  <p class="dim">Press E to inspect individual parts.</p>
+</div>
+
+<div id="ov" class="layer"><div class="card" style="text-align:center">
+  <h1 id="on"></h1>
+  <p>Explore the room and learn about this machine. The 3D model is an illustrative reconstruction, not a NASA photograph.</p>
+  <p class="dim">Desktop: WASD / arrow keys to walk, mouse to look. Touchscreen: use the arrows and swipe to look.</p>
+  <div class="room-actions"><button class="btn" type="button" id="enterRoom">Enter the room</button><button class="btn" type="button" id="inspectFromStart">Inspect parts</button><a class="btn room-back" href="devices.html">Back to story</a></div><p id="roomError" role="alert"></p>
+</div></div>
+
+<div id="adv" class="layer hide"><div class="card">
+  <h2 id="an"></h2>
+  <p class="dim" style="margin-top:-4px">Select a component to highlight it on the model and read about its role.</p>
+  <div id="pl"></div>
+  <h3 id="pt"></h3><p id="pu"></p>
+  <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:16px">
+    <button id="back" type="button">Back to the room</button>
+    <a class="btn room-back" href="devices.html">Back to story</a>
+  </div>
+</div></div>
+
+<script src="three.min.js"></script>
+<script src="data.js"></script>
+<script src="models.js"></script>
+<script>
+/* ---------- CONTENT ---------- */
+const D={
+lunar:{n:'Apollo Lunar Rover',
+ s:'A battery-powered electric car that carried astronauts across the Moon on Apollo 15, 16 and 17. All three were left behind on the surface.',
+ t:'Extend how far astronauts could explore beyond the lander.',
+ p:[['Mesh wheels','Woven wire mesh with titanium chevrons grips loose lunar dust while staying light. Each wheel has its own motor.'],
+ ['Batteries','Two non-rechargeable silver-zinc batteries power the drive motors, steering, navigation and communications.'],
+ ['Control handle','A T-shaped hand controller: push to go, tilt to steer, pull back to brake.'],
+ ['Antennas','A mesh umbrella dish sends TV and data straight to Earth; a smaller antenna carries voice.'],
+ ['TV camera','A camera that mission control could aim from Earth, showing the surface live.'],
+ ['Seats','Folding seats with belts hold two suited astronauts.']]},
+perseverance:{n:'Perseverance Rover',
+ s:'A car-sized robotic geologist exploring Jezero Crater on Mars and collecting rock samples for future return to Earth.',
+ t:'Search for signs of ancient microbial life and store samples.',
+ p:[['Six wheels','Aluminum wheels with treads on a rocker-bogie suspension climb over rocks and keep all six wheels on the ground.'],
+ ['Navigation cameras','Stereo cameras build 3D maps so the rover can choose safe paths and drive itself.'],
+ ['Robotic arm','A 2-metre arm holds the drill and science instruments to study rocks up close and collect core samples.'],
+ ['Communication','Talks to Earth directly and relays data through Mars orbiters.']]},
+canadarm:{n:'Canadarm2',
+ s:'A 17.6-metre robotic arm on the International Space Station, built by Canada.',
+ t:'Move cargo, capture visiting spacecraft and help astronauts on spacewalks.',
+ p:[['Robotic arm','Two long booms let it reach and move cargo or astronauts around the station.'],
+ ['Joints','Seven motorized joints give it human-arm flexibility, and it can move end over end along the station.'],
+ ['Cameras','Cameras and lights near each end show operators the work area.'],
+ ['End effector','Latching hands at each end grab special grapple fixtures on equipment and spacecraft.']]},
+suit:{n:'Space Suit',
+ s:'A personal spacecraft that lets astronauts work outside the station during spacewalks.',
+ t:'Keep astronauts alive and able to work in vacuum and extreme temperatures.',
+ p:[['Helmet','Holds a bubble of air, gives clear vision and carries communication gear.'],
+ ['Gold visor','A thin gold coating reflects intense sunlight to protect eyes and face.'],
+ ['Life-support backpack','Supplies oxygen, removes carbon dioxide and circulates cooling water.'],
+ ['Gloves','Heated, flexible gloves with grippy fingertips let astronauts handle tools.']]},
+dextre:{n:'Dextre',
+ s:'A two-armed robot that does delicate repair jobs outside the International Space Station.',
+ t:'Perform maintenance that once needed a spacewalk.',
+ p:[['Two arms','Each arm has seven joints for precise, careful movements.'],
+ ['Cameras and lights','Show operators on the ground the exact work area.'],
+ ['Tool platform','Holds tools it swaps to replace batteries, cameras and other station parts.']]},
+hubble:{n:'Hubble Space Telescope',
+ s:'An orbiting observatory launched in 1990 that has studied planets, stars and galaxies.',
+ t:'Collect light above Earth’s atmosphere for sharper views of the universe.',
+ p:[['Primary mirror','A 2.4-metre mirror gathers faint light and focuses it on the instruments.'],
+ ['Solar panels','Turn sunlight into electricity to run the telescope.'],
+ ['Antennas','Send images to ground stations and receive commands.'],
+ ['Instruments','Cameras and spectrographs split and record the collected light.']]}
+};
+const params=new URLSearchParams(location.search);
+const requested=params.get('device')||params.get('e')||'lunar';
+const selected=SpaceData.getDevice(requested);
+const K=selected?selected.model:(D[requested]?requested:'lunar');
+const E=selected ? {n:selected.name,s:selected.summary,t:selected.tagline,p:K==='lunar'?D.lunar.p:selected.parts.map(p=>[p.title,p.description])} : D[K];
+const storyUrl=selected?'device.html?device='+encodeURIComponent(selected.id):'devices.html';
+
+/* ---------- UI Text ---------- */
+const $=i=>document.getElementById(i);
+$('on').textContent=$('dn').textContent=$('an').textContent=E.n;
+$('ds').textContent=E.s;$('dt').textContent=E.t;
+document.title=E.n+' – 3D Room';
+$('roomBackTop').href=storyUrl;
+document.querySelectorAll('.room-back').forEach(a=>a.href=storyUrl);
+
+/* ---------- Renderer & Scene ---------- */
+const sc=new THREE.Scene();
+sc.background=new THREE.Color(0x02060f);
+sc.fog=new THREE.FogExp2(0x040f1e,.018);
+
+const cam=new THREE.PerspectiveCamera(65,innerWidth/innerHeight,.1,300);
+cam.position.set(0,1.75,7.2);
+cam.rotation.order='YXZ';
+
+const rd=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});
+rd.setSize(innerWidth,innerHeight);
+rd.setPixelRatio(Math.min(devicePixelRatio,2));
+rd.shadowMap.enabled=true;
+rd.shadowMap.type=THREE.PCFSoftShadowMap;
+rd.outputEncoding=THREE.sRGBEncoding;
+rd.toneMapping=THREE.ACESFilmicToneMapping;
+rd.toneMappingExposure=1.18;
+document.body.prepend(rd.domElement);
+
+/* ---------- Procedural Textures & Reflection Env ---------- */
+function makeGridTex(bg,line,sub,repeat=12){
+  const c=document.createElement('canvas');c.width=c.height=512;
+  const x=c.getContext('2d');
+  x.fillStyle=bg;x.fillRect(0,0,512,512);
+  for(let i=0;i<3000;i++){
+    x.fillStyle=Math.random()>.5?'rgba(255,255,255,0.015)':'rgba(0,0,0,0.02)';
+    x.fillRect(Math.random()*512,Math.random()*512,18,1);
+  }
+  x.strokeStyle=sub;x.lineWidth=1;
+  for(let i=0;i<=512;i+=64){
+    x.beginPath();x.moveTo(i,0);x.lineTo(i,512);x.stroke();
+    x.beginPath();x.moveTo(0,i);x.lineTo(512,i);x.stroke();
+  }
+  x.strokeStyle=line;x.lineWidth=3;
+  x.strokeRect(1.5,1.5,509,509);
+  const t=new THREE.CanvasTexture(c);
+  t.wrapS=t.wrapT=THREE.RepeatWrapping;
+  t.repeat.set(repeat,repeat);
+  t.anisotropy=8;
+  return t;
+}
+
+function makeSolarTex(){
+  const c=document.createElement('canvas');c.width=c.height=256;
+  const x=c.getContext('2d');
+  x.fillStyle='#0c274d';x.fillRect(0,0,256,256);
+  x.strokeStyle='#38bdf8';x.lineWidth=1.5;
+  for(let i=0;i<=256;i+=32){
+    x.beginPath();x.moveTo(i,0);x.lineTo(i,256);x.stroke();
+    x.beginPath();x.moveTo(0,i);x.lineTo(256,i);x.stroke();
+  }
+  const t=new THREE.CanvasTexture(c);
+  t.wrapS=t.wrapT=THREE.RepeatWrapping;
+  return t;
+}
+
+const pmrem=new THREE.PMREMGenerator(rd);
+const envSc=new THREE.Scene();
+envSc.background=new THREE.Color(0x061224);
+const eLight1=new THREE.Mesh(new THREE.BoxGeometry(10,1,10),new THREE.MeshBasicMaterial({color:0x9eeeff}));
+eLight1.position.set(0,8,0);envSc.add(eLight1);
+const eLight2=new THREE.Mesh(new THREE.BoxGeometry(1,4,12),new THREE.MeshBasicMaterial({color:0x38bdf8}));
+eLight2.position.set(8,3,0);envSc.add(eLight2);
+const eLight3=new THREE.Mesh(new THREE.BoxGeometry(1,4,12),new THREE.MeshBasicMaterial({color:0x60a5fa}));
+eLight3.position.set(-8,3,0);envSc.add(eLight3);
+sc.environment=pmrem.fromScene(envSc).texture;
+
+/* ---------- Materials & Part Tagging ---------- */
+const mt=(c,m=.5,r=.35,extra={})=>new THREE.MeshStandardMaterial({color:c,metalness:m,roughness:r,...extra});
+const gl=(c=0x22d3ee,i=1.8)=>new THREE.MeshStandardMaterial({color:c,emissive:c,emissiveIntensity:i,roughness:.2});
+
+const M={
+  white:mt(0xf1f5f9,.18,.48),
+  cream:mt(0xe2e8f0,.12,.62),
+  grey:mt(0x64748b,.75,.32),
+  dark:mt(0x1e293b,.45,.55),
+  black:mt(0x0f172a,.3,.7),
+  gold:mt(0xfbbf24,.95,.14),
+  foil:mt(0xd97706,.9,.28),
+  blue:mt(0x1d4ed8,.6,.3),
+  solar:mt(0x1e40af,.7,.22,{map:makeSolarTex()}),
+  cyan:mt(0x38bdf8,.4,.3),
+  silver:mt(0xe2e8f0,.95,.16),
+  mirror:mt(0xffffff,1.0,.05),
+  glass:mt(0x7dd3fc,.1,.08,{transparent:true,opacity:.38})
+};
+
+const modelMeshes=[];
+function mesh(g,m,x=0,y=0,z=0,rx=0,ry=0,rz=0,p=null,partIdx=null){
+  const o=new THREE.Mesh(g,m);
+  o.position.set(x,y,z);
+  o.rotation.set(rx,ry,rz);
+  o.castShadow=true;
+  o.receiveShadow=true;
+  if(p && p!==sc){
+    o.material=m.clone();
+    modelMeshes.push({
+      mesh:o,
+      part:partIdx,
+      color:o.material.color.getHex(),
+      emissive:o.material.emissive?o.material.emissive.getHex():0x000000,
+      intensity:o.material.emissiveIntensity||0,
+      opacity:o.material.opacity!==undefined?o.material.opacity:1,
+      transparent:Boolean(o.material.transparent)
+    });
+  }
+  if(p)p.add(o);
+  return o;
+}
+
+const box=(w,h,d)=>new THREE.BoxGeometry(w,h,d);
+const cyl=(a,b,h,s=24)=>new THREE.CylinderGeometry(a,b,h,s);
+const sph=(r,w=28,h=20)=>new THREE.SphereGeometry(r,w,h);
+const tor=(r,t,rs=12,ts=36)=>new THREE.TorusGeometry(r,t,rs,ts);
+
+/* ---------- Detailed 3D Equipment Models ---------- */
+const MODELS={
+  lunar(){
+    const g=new THREE.Group();
+    mesh(box(.95,.05,.52),M.silver,0,.22,0,0,0,0,g);
+    mesh(box(.42,.04,.58),M.grey,-.22,.23,0,0,0,0,g);
+    mesh(box(.42,.04,.58),M.grey,.22,.23,0,0,0,0,g);
+    [[-.36,-.32],[-.36,.32],[.36,-.32],[.36,.32]].forEach(([x,z])=>{
+      mesh(box(.12,.03,.12),M.grey,x,.21,z*.8,0,0,0,g,0);
+      mesh(tor(.14,.038,12,28),M.grey,x,.16,z,0,0,0,g,0);
+      mesh(cyl(.09,.09,.05,20),M.gold,x,.16,z,Math.PI/2,0,0,g,0);
+      mesh(cyl(.03,.03,.08,12),M.dark,x,.16,z,Math.PI/2,0,0,g,0);
+      mesh(new THREE.CylinderGeometry(.185,.185,.09,16,1,true,0,Math.PI),M.white,x,.17,z,0,Math.PI/2,0,g,0);
+    });
+    [-.12,.12].forEach(z=>{
+      mesh(box(.22,.16,.18),M.foil,.33,.32,z,0,0,0,g,1);
+      mesh(box(.23,.03,.19),M.dark,.33,.40,z,0,0,0,g,1);
+    });
+    mesh(box(.14,.14,.16),M.dark,.08,.31,0,0,0,0,g,2);
+    mesh(cyl(.012,.015,.22,10),M.silver,.06,.44,0,0,0,-.25,g,2);
+    mesh(cyl(.014,.014,.14,10),M.cyan,.03,.54,0,Math.PI/2,0,0,g,2);
+    mesh(cyl(.014,.018,.38,12),M.silver,.28,.54,.18,0,0,-.15,g,3);
+    mesh(new THREE.ConeGeometry(.22,.11,24,1,true),M.gold,.24,.74,.18,Math.PI-.2,0,-.15,g,3);
+    mesh(cyl(.006,.006,.09,8),M.white,.24,.71,.18,0,0,-.15,g,3);
+    mesh(cyl(.008,.01,.46,8),M.silver,-.38,.48,-.22,0,0,.1,g,3);
+    mesh(cyl(.015,.018,.28,10),M.grey,.36,.46,-.18,0,0,0,g,4);
+    mesh(box(.14,.09,.09),M.white,.36,.61,-.18,0,.2,0,g,4);
+    mesh(cyl(.028,.032,.05,16),M.dark,.43,.61,-.19,0,0,Math.PI/2,g,4);
+    mesh(sph(.022),M.cyan,.45,.61,-.19,0,0,0,g,4);
+    [-.15,.15].forEach(z=>{
+      mesh(box(.18,.04,.20),M.blue,-.12,.27,z,0,0,0,g,5);
+      mesh(box(.04,.24,.20),M.blue,-.21,.39,z,0,0,.15,g,5);
+      mesh(box(.02,.04,.22),M.silver,-.12,.33,z,0,0,0,g,5);
+    });
+    return g;
+  },
+
+  perseverance(){
+    const g=new THREE.Group();
+    mesh(box(.78,.22,.48),M.white,0,.38,0,0,0,0,g);
+    mesh(box(.74,.04,.44),M.gold,0,.50,0,0,0,0,g);
+    mesh(cyl(.10,.12,.28,16),M.white,-.44,.46,0,0,0,.45,g);
+    [-.28,.28].forEach(z=>{
+      mesh(box(.56,.035,.035),M.grey,0,.25,z,0,0,0,g,0);
+      [-.32,0,.32].forEach(x=>{
+        mesh(cyl(.018,.018,.14,10),M.silver,x,.20,z,0,0,0,g,0);
+        mesh(cyl(.115,.115,.085,22),M.dark,x,.12,z*1.12,Math.PI/2,0,0,g,0);
+        mesh(cyl(.065,.065,.09,16),M.silver,x,.12,z*1.12,Math.PI/2,0,0,g,0);
+      });
+    });
+    mesh(cyl(.026,.032,.46,12),M.white,.24,.72,.14,0,0,0,g,1);
+    mesh(box(.16,.11,.22),M.white,.24,.98,.14,0,0,0,g,1);
+    mesh(cyl(.032,.032,.04,16),M.dark,.33,.99,.14,0,0,Math.PI/2,g,1);
+    mesh(sph(.024),M.cyan,.35,.99,.14,0,0,0,g,1);
+    [-.05,.05].forEach(z=>mesh(sph(.018),M.blue,.32,.95,.14+z,0,0,0,g,1));
+    mesh(sph(.05),M.grey,.39,.40,-.08,0,0,0,g,2);
+    mesh(cyl(.028,.028,.34,12),M.silver,.52,.44,-.08,0,0,-1.25,g,2);
+    mesh(sph(.045),M.gold,.67,.48,-.08,0,0,0,g,2);
+    mesh(cyl(.024,.024,.28,12),M.silver,.74,.36,-.08,0,0,.45,g,2);
+    mesh(box(.13,.13,.13),M.foil,.80,.22,-.08,.2,.4,0,g,2);
+    mesh(cyl(.02,.03,.08,12),M.cyan,.86,.20,-.08,0,0,Math.PI/2,g,2);
+    mesh(cyl(.012,.015,.30,10),M.silver,-.24,.65,-.14,0,0,0,g,3);
+    mesh(cyl(.09,.09,.02,24),M.gold,-.14,.53,.14,0,0,-.2,g,3);
+    mesh(sph(.03),M.white,-.24,.80,-.14,0,0,0,g,3);
+    return g;
+  },
+
+  canadarm(){
+    const g=new THREE.Group();
+    mesh(box(.65,.12,.65),M.grey,0,.06,0,0,0,0,g);
+    mesh(box(.45,.06,.45),M.gold,0,.14,0,0,0,0,g);
+    mesh(cyl(.11,.13,.16,24),M.dark,0,.22,0,0,0,0,g,3);
+    mesh(sph(.095),M.blue,0,.34,0,0,0,0,g,1);
+    mesh(cyl(.075,.075,.16,18),M.silver,-.06,.42,0,0,0,.4,g,1);
+    mesh(cyl(.062,.062,.58,20),M.white,-.20,.68,0,0,0,.45,g,0);
+    mesh(cyl(.066,.066,.06,20),M.cyan,-.20,.68,0,0,0,.45,g,0);
+    mesh(sph(.095),M.blue,-.34,.96,0,0,0,0,g,1);
+    mesh(cyl(.062,.062,.56,20),M.white,-.08,1.16,0,0,0,-.72,g,0);
+    mesh(cyl(.066,.066,.06,20),M.cyan,-.08,1.16,0,0,0,-.72,g,0);
+    mesh(sph(.09),M.blue,.16,1.34,0,0,0,0,g,1);
+    mesh(box(.09,.07,.08),M.dark,-.34,1.07,.09,0,0,0,g,2);
+    mesh(sph(.024),M.cyan,-.34,1.07,.14,0,0,0,g,2);
+    mesh(box(.08,.06,.07),M.dark,.16,1.45,.08,0,0,0,g,2);
+    mesh(sph(.022),M.cyan,.16,1.45,.12,0,0,0,g,2);
+    mesh(cyl(.10,.08,.22,24),M.silver,.34,1.24,0,0,0,-1.05,g,3);
+    mesh(tor(.095,.015,10,24),M.gold,.43,1.19,0,0,Math.PI/2,-1.05,g,3);
+    return g;
+  },
+
+  suit(){
+    const g=new THREE.Group();
+    mesh(cyl(.28,.32,.05,24),M.dark,0,.025,0,0,0,0,g);
+    mesh(cyl(.02,.02,.45,10),M.grey,0,.25,-.12,0,0,0,g);
+    mesh(cyl(.19,.16,.44,24),M.white,0,.74,0,0,0,0,g);
+    mesh(box(.20,.14,.06),M.cream,0,.78,.17,0,0,0,g);
+    mesh(cyl(.03,.03,.04,12),M.cyan,-.05,.80,.20,Math.PI/2,0,0,g);
+    mesh(cyl(.03,.03,.04,12),M.gold,.05,.80,.20,Math.PI/2,0,0,g);
+    [-.095,.095].forEach(x=>{
+      mesh(cyl(.075,.065,.44,16),M.white,x,.32,0,0,0,0,g);
+      mesh(box(.12,.08,.20),M.grey,x,.08,.04,0,0,0,g);
+    });
+    [-1,1].forEach(s=>{
+      mesh(sph(.075),M.grey,s*.22,.90,0,0,0,0,g);
+      mesh(cyl(.062,.052,.36,16),M.white,s*.28,.70,.04,-.25,0,s*-.24,g);
+      mesh(cyl(.055,.045,.11,16),M.blue,s*.33,.50,.11,-.35,0,s*-.2,g,3);
+      mesh(sph(.055),M.dark,s*.35,.43,.14,0,0,0,g,3);
+    });
+    mesh(tor(.135,.018,12,28),M.silver,0,.97,0,Math.PI/2,0,0,g,0);
+    mesh(sph(.165),M.glass,0,1.11,0,0,0,0,g,0);
+    mesh(box(.06,.05,.08),M.white,-.16,1.10,0,0,0,0,g,0);
+    mesh(box(.06,.05,.08),M.white,.16,1.10,0,0,0,0,g,0);
+    mesh(new THREE.SphereGeometry(.152,24,18,-Math.PI*.42,Math.PI*.84,Math.PI*.18,Math.PI*.55),M.gold,0,1.11,.025,0,-Math.PI/2,0,g,1);
+    mesh(box(.32,.46,.16),M.white,0,.78,-.21,0,0,0,g,2);
+    mesh(box(.28,.12,.14),M.grey,0,1.06,-.20,0,0,0,g,2);
+    mesh(box(.30,.12,.18),M.cream,0,.52,-.21,0,0,0,g,2);
+    return g;
+  },
+
+  dextre(){
+    const g=new THREE.Group();
+    mesh(cyl(.14,.16,.18,20),M.dark,0,.09,0,0,0,0,g);
+    mesh(box(.34,.36,.28),M.white,0,.38,0,0,0,0,g);
+    mesh(box(.26,.24,.30),M.foil,0,.38,0,0,0,0,g);
+    [-1,1].forEach(s=>{
+      mesh(sph(.065),M.blue,s*.22,.50,0,0,0,0,g,0);
+      mesh(cyl(.042,.042,.36,14),M.white,s*.35,.64,0,0,0,s*-.62,g,0);
+      mesh(sph(.055),M.blue,s*.48,.78,0,0,0,0,g,0);
+      mesh(cyl(.038,.038,.34,14),M.white,s*.38,.94,.08,.45,0,s*.55,g,0);
+      mesh(cyl(.045,.045,.10,14),M.silver,s*.27,1.08,.15,.45,0,s*.55,g,0);
+    });
+    mesh(cyl(.02,.02,.18,10),M.grey,0,.64,0,0,0,0,g,1);
+    mesh(box(.22,.07,.09),M.white,0,.75,.03,0,0,0,g,1);
+    [-.06,.06].forEach(x=>mesh(sph(.024),M.cyan,x,.75,.08,0,0,0,g,1));
+    mesh(box(.14,.06,.08),M.dark,0,.28,.17,0,0,0,g,1);
+    mesh(sph(.02),M.cyan,0,.28,.22,0,0,0,g,1);
+    mesh(box(.46,.06,.24),M.grey,0,.20,.16,0,0,0,g,2);
+    [-.14,0,.14].forEach(x=>mesh(cyl(.028,.028,.12,12),M.gold,x,.27,.18,0,0,0,g,2));
+    return g;
+  },
+
+  hubble(){
+    const g=new THREE.Group();
+    mesh(cyl(.22,.22,.82,32),M.silver,0,.58,0,0,0,Math.PI/2,g);
+    mesh(cyl(.24,.24,.06,32),M.gold,.12,.58,0,0,0,Math.PI/2,g);
+    mesh(cyl(.24,.24,.06,32),M.gold,-.18,.58,0,0,0,Math.PI/2,g);
+    mesh(cyl(.22,.22,.02,32),M.silver,.44,.78,0,0,0,.45,g);
+    mesh(cyl(.195,.195,.03,36),M.mirror,.39,.58,0,0,0,Math.PI/2,g,0);
+    mesh(cyl(.045,.045,.05,16),M.dark,.40,.58,0,0,0,Math.PI/2,g,0);
+    [-1,1].forEach(s=>{
+      mesh(cyl(.018,.018,.78,10),M.grey,0,.58,s*.46,Math.PI/2,0,0,g,1);
+      mesh(box(.02,.32,.66),M.solar,0,.58,s*.56,.25,0,0,g,1);
+      mesh(box(.024,.34,.02),M.silver,0,.58,s*.24,.25,0,0,g,1);
+      mesh(box(.024,.34,.02),M.silver,0,.58,s*.88,.25,0,0,g,1);
+    });
+    [-1,1].forEach(s=>{
+      mesh(cyl(.01,.01,.34,8),M.silver,-.05,.58+s*.36,0,0,0,0,g,2);
+      mesh(new THREE.ConeGeometry(.10,.05,20,1,true),M.white,-.05,.58+s*.54,0,s>0?Math.PI:0,0,0,g,2);
+    });
+    mesh(cyl(.27,.27,.34,32),M.grey,-.36,.58,0,0,0,Math.PI/2,g,3);
+    mesh(cyl(.21,.27,.08,32),M.foil,-.56,.58,0,0,0,Math.PI/2,g,3);
+    g.rotation.y=-.45;
+    return g;
+  }
+};
+
+/* ---------- Exhibit Hall Environment ---------- */
+const floorTex=makeGridTex('#071324','#1e4e6e','#0e2942',12);
+const wallTex=makeGridTex('#06101f','#163a59','#0b2038',8);
+
+mesh(new THREE.PlaneGeometry(24,24),mt(0xffffff,.65,.28,{map:floorTex}),0,0,0,-Math.PI/2,0,0,sc);
+mesh(new THREE.PlaneGeometry(24,24),mt(0x050e1c,.5,.5),0,9,0,Math.PI/2,0,0,sc);
+
+const wallMat=mt(0xffffff,.6,.35,{map:wallTex});
+mesh(new THREE.PlaneGeometry(24,9),wallMat,-12,4.5,0,0,Math.PI/2,0,sc);
+mesh(new THREE.PlaneGeometry(24,9),wallMat,12,4.5,0,0,-Math.PI/2,0,sc);
+mesh(new THREE.PlaneGeometry(24,9),wallMat,0,4.5,12,0,Math.PI,0,sc);
+
+mesh(new THREE.PlaneGeometry(24,2.2),wallMat,0,1.1,-12,0,0,0,sc);
+mesh(new THREE.PlaneGeometry(24,2.6),wallMat,0,7.7,-12,0,0,0,sc);
+mesh(new THREE.PlaneGeometry(5,4.2),wallMat,-9.5,4.3,-12,0,0,0,sc);
+mesh(new THREE.PlaneGeometry(5,4.2),wallMat,9.5,4.3,-12,0,0,0,sc);
+
+mesh(box(14.2,.18,.25),M.grey,0,2.2,-11.9,0,0,0,sc);
+mesh(box(14.2,.18,.25),M.grey,0,6.4,-11.9,0,0,0,sc);
+mesh(box(14,.04,.04),gl(0x38bdf8,1.5),0,2.32,-11.82,0,0,0,sc);
+mesh(new THREE.PlaneGeometry(14,4.2),mt(0x7dd3fc,.1,.05,{transparent:true,opacity:.12}),0,4.3,-11.95,0,0,0,sc);
+
+const spaceGroup=new THREE.Group();
+spaceGroup.position.set(0,4.5,-38);
+sc.add(spaceGroup);
+const starGeo=new THREE.BufferGeometry();
+const starPts=[];
+for(let i=0;i<600;i++)starPts.push((Math.random()-.5)*70,(Math.random()-.5)*30,(Math.random()-.5)*20);
+starGeo.setAttribute('position',new THREE.Float32BufferAttribute(starPts,3));
+spaceGroup.add(new THREE.Points(starGeo,new THREE.PointsMaterial({color:0xe0f2fe,size:.14})));
+
+const planet=mesh(sph(4.2,32,24),mt(0x1e40af,.2,.8,{emissive:0x091936,emissiveIntensity:.6}),6.5,1.2,-6,0,0,0,spaceGroup);
+const planetRing=mesh(new THREE.RingGeometry(5.4,7.6,48),mt(0x38bdf8,.3,.5,{side:THREE.DoubleSide,transparent:true,opacity:.35}),6.5,1.2,-6,1.25,.3,0,spaceGroup);
+
+[-9,-3,3,9].forEach(z=>{
+  [-11.85,11.85].forEach(x=>mesh(box(.3,9,.35),M.dark,x,4.5,z,0,0,0,sc));
+  mesh(box(24,.3,.35),M.dark,0,8.85,z,0,0,0,sc);
+});
+[-11.75,11.75].forEach(x=>{
+  mesh(box(.08,.08,23.6),gl(0x22d3ee,1.8),x,2.2,0,0,0,0,sc);
+  mesh(box(.08,.08,23.6),gl(0x0284c7,1.4),x,6.5,0,0,0,0,sc);
+});
+[-6,0,6].forEach(z=>{
+  mesh(box(3.4,.12,2.2),M.dark,0,8.92,z,0,0,0,sc);
+  mesh(box(3.0,.05,1.8),gl(0xe0f2fe,1.6),0,8.86,z,0,0,0,sc);
+});
+
+/* ---------- Lighting ---------- */
+sc.add(new THREE.HemisphereLight(0xbae6fd,0x091526,.75));
+
+[[-8,7.5,-7],[8,7.5,-7],[-8,7.5,7],[8,7.5,7]].forEach(p=>{
+  const l=new THREE.PointLight(0x38bdf8,1.1,24);
+  l.position.set(...p);
+  sc.add(l);
+});
+
+const sp=new THREE.SpotLight(0xf0f9ff,2.8,24,.55,.55,1);
+sp.position.set(2.5,8.2,-1.5);
+sp.target.position.set(0,1.2,-5);
+sp.castShadow=true;
+sp.shadow.mapSize.set(1024,1024);
+sp.shadow.bias=-.0005;
+sc.add(sp,sp.target);
+
+const rim=new THREE.PointLight(0x22d3ee,1.8,12);
+rim.position.set(0,3.2,-7.6);
+sc.add(rim);
+
+/* ---------- Pedestal, Exhibit & Holographic Rings ---------- */
+mesh(cyl(1.35,1.55,.22,40),M.dark,0,.11,-5,0,0,0,sc);
+mesh(cyl(1.15,1.30,.72,40),mt(0x0f253d,.7,.28),0,.55,-5,0,0,0,sc);
+mesh(cyl(1.22,1.22,.05,40),gl(0x22d3ee,1.6),0,.93,-5,0,0,0,sc);
+mesh(tor(1.42,.015,8,64),gl(0x38bdf8,1.4),0,.23,-5,Math.PI/2,0,0,sc);
+
+const spin=new THREE.Group();
+spin.position.set(0,.98,-5);
+sc.add(spin);
+
+modelMeshes.length=0; // Do not highlight room decoration.
+const hasDetailedParts=Boolean(MODELS[K]);
+const model=hasDetailedParts?MODELS[K]():SpaceModelLib.MODELS[K]();
+if(hasDetailedParts){ model.scale.setScalar(2.45); }
+else {
+  // These simple extra shapes represent components not present in the original
+  // schematic. They let every component highlight an actual visible shape.
+  function addRoomPart(geometry,material,x,y,z){
+    const part=new THREE.Mesh(geometry,material); part.position.set(x,y,z); model.add(part); return part;
+  }
+  if(K==='apollo_lm'){
+    addRoomPart(box(.36,.32,.32),M.white,0,.80,0);
+    addRoomPart(box(.12,.08,.02),M.dark,0,.85,.17);
+  } else if(K==='surveyor'){
+    addRoomPart(box(.13,.10,.10),M.dark,.13,.62,.15);
+    const a=addRoomPart(cyl(.018,.018,.45,8),M.silver,.35,.15,.22); a.rotation.z=-1.0;
+    addRoomPart(box(.1,.04,.1),M.grey,.54,.04,.22);
+  } else if(K==='dawn'){
+    addRoomPart(box(.10,.08,.08),M.dark,.16,.64,.14);
+  } else if(K==='near'){
+    addRoomPart(box(.10,.08,.08),M.dark,.16,.48,.22);
+    addRoomPart(box(.12,.09,.09),M.silver,-.17,.49,.21);
+  } else if(K==='pioneer'){
+    addRoomPart(box(.10,.08,.08),M.silver,0,.46,-.20);
+    addRoomPart(box(.13,.09,.012),M.gold,.11,.54,.02);
+  } else if(K==='kepler'){
+    const stem=addRoomPart(cyl(.01,.01,.22,8),M.silver,.24,.5,.1); stem.rotation.z=-.8;
+    addRoomPart(new THREE.ConeGeometry(.08,.05,16,1,true),M.white,.32,.58,.1);
+  }
+  const partMap={
+    apollo_lm:[[0],[3,4,5,6,7,8,9,10,11,12,13,14],[15],[17,18]],
+    alsep:[[0,1,2],[5],[3,4],[6]],
+    surveyor:[[3,4,5,6,7,8],[12],[13,14],[11]],
+    sojourner:[[2,4,6,8,10,12],[1],[14],[15]],
+    mer:[[1,2,3],[4,6,8,10,12,14],[16,17,18],[20]],
+    viking:[[0],[13],[11,12],[9,10]],
+    phoenix_insight:[[7,8],[10],[0],[9]],
+    ingenuity:[[6,7],[8],[0],[1,2,3,4]],
+    dawn:[[0,3],[5,7],[8],[2]],
+    near:[[3,4,5,6],[7],[2],[8]],
+    pioneer:[[2,3,4],[5,6,7,8],[9],[10]],
+    kepler:[[2,3],[4],[5,6,7,8],[9,10]]
+  };
+  const groups=partMap[K] || [];
+  model.children.forEach((part,index)=>{
+    if(!part.isMesh) return;
+    part.material=part.material.clone();
+    const partIndex=groups.findIndex(indices=>indices.includes(index));
+    modelMeshes.push({mesh:part,part:partIndex<0?null:partIndex,
+      color:part.material.color.getHex(),emissive:part.material.emissive.getHex(),
+      intensity:part.material.emissiveIntensity||0,opacity:part.material.opacity,
+      transparent:Boolean(part.material.transparent)});
+  });
+  // Scale each illustrative model to fit the pedestal and rest on its surface.
+  const bounds=new THREE.Box3().setFromObject(model), size=bounds.getSize(new THREE.Vector3()), center=bounds.getCenter(new THREE.Vector3());
+  const scale=2.5/Math.max(size.x,size.y,size.z,.01);
+  model.scale.setScalar(scale);
+  model.position.set(-center.x*scale,-bounds.min.y*scale,-center.z*scale);
+}
+spin.add(model);
+const equipmentMeshCount=modelMeshes.length;
+
+const ring1=mesh(tor(1.95,.018,8,72),gl(0x67e8f9,1.3),0,1.45,0,1.25,.2,0,spin);
+const ring2=mesh(tor(2.15,.012,8,72),gl(0x0284c7,1.1),0,1.45,0,-1.1,-.3,0,spin);
+modelMeshes.length=equipmentMeshCount; // Exclude decorative rings from highlighting.
+
+const dustGeo=new THREE.BufferGeometry();
+const dustPts=[];
+for(let i=0;i<160;i++)dustPts.push((Math.random()-.5)*14,Math.random()*6+.3,(Math.random()-.5)*14-2);
+dustGeo.setAttribute('position',new THREE.Float32BufferAttribute(dustPts,3));
+const dust=new THREE.Points(dustGeo,new THREE.PointsMaterial({color:0xbae6fd,size:.035,transparent:true,opacity:.55}));
+sc.add(dust);
+
+/* ---------- Controls & State ---------- */
+const keys={f:0,b:0,l:0,r:0},vel=new THREE.Vector3(),dir=new THREE.Vector3();
+let lock=false,advOpen=false,near=false,yaw=0,pitch=0,prev=performance.now();
+let savedCam={pos:new THREE.Vector3(),yaw:0,pitch:0};
+let activePartIdx=null;
+
+const touchMode=matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints>0;
+let entered=false;
+function beginRoom(){
+  entered=true;
+  $('inspectNow').classList.remove('hide');
+  if(touchMode){
+    $('ov').classList.add('hide');
+    $('mobileControls').classList.remove('hide');
+    $('hint').textContent='Use arrows to move · swipe the room to look · Inspect parts';
+  } else if(document.body.requestPointerLock) {
+    const result=document.body.requestPointerLock();
+    if(result && result.catch) result.catch(()=>{$('roomError').textContent='Mouse capture was blocked. You can still inspect parts or go back.';});
+  }
+}
+$('enterRoom').addEventListener('click',beginRoom);
+$('inspectFromStart').addEventListener('click',()=>{ entered=true; openAdv(); });
+$('inspectNow').addEventListener('click',()=>openAdv());
+document.addEventListener('pointerlockchange',()=>{
+  lock=document.pointerLockElement===document.body;
+  if(!touchMode) $('ov').classList.toggle('hide',lock||advOpen);
+});
+document.addEventListener('mousemove',e=>{
+  if(!lock)return;
+  yaw-=e.movementX*.002;
+  pitch=Math.max(-1.4,Math.min(1.4,pitch-e.movementY*.002));
+  cam.rotation.x=pitch;cam.rotation.y=yaw;
+});
+const setKey=(c,v)=>{
+  if(c=='KeyW'||c=='ArrowUp')keys.f=v;
+  else if(c=='KeyS'||c=='ArrowDown')keys.b=v;
+  else if(c=='KeyA'||c=='ArrowLeft')keys.l=v;
+  else if(c=='KeyD'||c=='ArrowRight')keys.r=v;
+};
+document.addEventListener('keydown',e=>{
+  setKey(e.code,1);
+  if(e.code=='KeyE'&&lock&&near)openAdv();
+  if(e.code=='KeyL')location.href=storyUrl;
+});
+document.addEventListener('keyup',e=>setKey(e.code,0));
+addEventListener('resize',()=>{
+  cam.aspect=innerWidth/innerHeight;
+  cam.updateProjectionMatrix();
+  rd.setSize(innerWidth,innerHeight);
+});
+
+if(touchMode){
+  document.querySelectorAll('#mobileControls button').forEach(btn=>{
+    const release=()=>{keys[btn.dataset.key]=0;};
+    btn.addEventListener('pointerdown',e=>{ e.preventDefault(); keys[btn.dataset.key]=1; btn.setPointerCapture(e.pointerId); });
+    btn.addEventListener('pointerup',release); btn.addEventListener('pointercancel',release); btn.addEventListener('lostpointercapture',release);
+  });
+  let lx=0,ly=0,looking=false;
+  rd.domElement.addEventListener('pointerdown',e=>{if(!entered||advOpen)return;looking=true;lx=e.clientX;ly=e.clientY;rd.domElement.setPointerCapture(e.pointerId);});
+  rd.domElement.addEventListener('pointermove',e=>{if(!looking||advOpen)return;yaw-=(e.clientX-lx)*.006;pitch=Math.max(-1.4,Math.min(1.4,pitch-(e.clientY-ly)*.006));cam.rotation.x=pitch;cam.rotation.y=yaw;lx=e.clientX;ly=e.clientY;});
+  rd.domElement.addEventListener('pointerup',()=>looking=false);
+  rd.domElement.addEventListener('pointercancel',()=>looking=false);
+  rd.domElement.style.touchAction='none';
+}
+
+/* ---------- High-Contrast Part Highlighting ---------- */
+function highlightPart(idx){
+  activePartIdx=idx;
+  modelMeshes.forEach(item=>{
+    if(idx===null){
+      item.mesh.material.color.setHex(item.color);
+      item.mesh.material.emissive.setHex(item.emissive);
+      item.mesh.material.emissiveIntensity=item.intensity;
+      item.mesh.material.transparent=item.transparent;
+      item.mesh.material.opacity=item.opacity;
+    }else if(item.part===idx){
+      item.mesh.material.color.setHex(0x7dd3fc);
+      item.mesh.material.emissive.setHex(0x00f0ff);
+      item.mesh.material.emissiveIntensity=1.65;
+      item.mesh.material.transparent=false;
+      item.mesh.material.opacity=1;
+    }else{
+      item.mesh.material.color.setHex(item.color);
+      item.mesh.material.emissive.setHex(0x000000);
+      item.mesh.material.emissiveIntensity=0;
+      item.mesh.material.transparent=true;
+      item.mesh.material.opacity=.28;
+    }
+  });
+}
+
+function openAdv(){
+  advOpen=true;
+  savedCam.pos.copy(cam.position);
+  savedCam.yaw=yaw;savedCam.pitch=pitch;
+  if(document.pointerLockElement) document.exitPointerLock();
+  $('ov').classList.add('hide');
+  $('adv').classList.remove('hide');
+  $('desc').classList.add('hide');
+  if(touchMode) $('mobileControls').classList.add('hide');
+  $('pl').innerHTML=E.p.map((p,i)=>`<button type="button" data-i="${i}" aria-pressed="false">${p[0]}</button>`).join('');
+  $('pl').firstChild.click();
+}
+$('pl').onclick=e=>{
+  const i=e.target.dataset.i;if(i==null)return;
+  [...$('pl').children].forEach(b=>{ const selected=b===e.target; b.classList.toggle('on',selected); b.setAttribute('aria-pressed',String(selected)); });
+  $('pt').textContent=E.p[i][0];
+  $('pu').textContent=E.p[i][1];
+  highlightPart(Number(i));
+};
+$('back').onclick=()=>{
+  advOpen=false;
+  highlightPart(null);
+  cam.position.copy(savedCam.pos);
+  yaw=savedCam.yaw;pitch=savedCam.pitch;
+  cam.rotation.x=pitch;cam.rotation.y=yaw;
+  $('adv').classList.add('hide');
+  beginRoom();
+};
+
+/* ---------- Render Loop ---------- */
+function loop(){
+  requestAnimationFrame(loop);
+  const t=performance.now(),dt=Math.min((t-prev)/1e3,.1);prev=t;
+
+  spin.rotation.y+=dt*(advOpen?.22:.55);
+  ring1.rotation.z+=dt*.4;
+  ring2.rotation.x-=dt*.3;
+  planet.rotation.y+=dt*.03;
+  dust.rotation.y+=dt*.02;
+
+  if(activePartIdx!==null){
+    const pulse=1.45+Math.sin(t*.007)*.65;
+    modelMeshes.forEach(item=>{
+      if(item.part===activePartIdx)item.mesh.material.emissiveIntensity=pulse;
+    });
+  }
+
+  if(advOpen){
+    cam.position.lerp(new THREE.Vector3(1.15,2.35,-1.65),1-Math.pow(.005,dt));
+    cam.lookAt(.55,1.85,-5);
+  }else if(lock || (touchMode && entered && !advOpen)){
+    vel.x-=vel.x*10*dt;vel.z-=vel.z*10*dt;
+    dir.z=keys.f-keys.b;dir.x=keys.r-keys.l;dir.normalize();
+    if(keys.f||keys.b)vel.z-=dir.z*25*dt;
+    if(keys.l||keys.r)vel.x-=dir.x*25*dt;
+    cam.translateX(-vel.x*dt);cam.translateZ(vel.z*dt);
+    cam.position.x=Math.max(-10.5,Math.min(10.5,cam.position.x));
+    cam.position.z=Math.max(-10.5,Math.min(10.5,cam.position.z));
+    cam.position.y=1.75;
+    const dx=cam.position.x,dz=cam.position.z+5,d=Math.hypot(dx,dz);
+    if(d>0&&d<2.1){cam.position.x=dx/d*2.1;cam.position.z=dz/d*2.1-5}
+  }
+
+  near=Math.hypot(cam.position.x,cam.position.z+5)<4.2;
+  $('desc').classList.toggle('hide',!(near&&(lock||(touchMode&&entered))&&!advOpen));
+  rd.render(sc,cam);
+}
+loop();
+</script>
+</body>
+</html>

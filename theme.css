@@ -1,0 +1,27 @@
+/* Shared Beyond Earth palette and typography */
+:root {
+  --bg-space: #081021;
+  --ink: #f5f8ff;
+  --ink-soft: #c6d4ee;
+  --ink-dim: #93a6c9;
+
+  --gold: #ffca58;
+  --coral: #ff7b54;
+  --cyan: #5de2ff;
+  --accent-cyan: #5de2ff;
+
+  /* transparent paper over the starfield */
+  --paper: rgba(13, 25, 51, 0.55);
+  --paper-strong: rgba(10, 19, 40, 0.78);
+  --line: rgba(158, 190, 240, 0.24);
+  --line-strong: rgba(158, 190, 240, 0.5);
+
+  --orbit-line: rgba(195, 210, 236, 0.25);
+  --orbit-line-strong: rgba(93, 226, 255, 0.4);
+
+  --focus-ring: #ffca58;
+  --shadow-offset: rgba(0, 0, 0, 0.55);
+}
+
+
+:root { --ease-out: cubic-bezier(0.22, 0.8, 0.28, 1); --ease-soft: cubic-bezier(0.4, 0, 0.2, 1); --dur-fast: .16s; --dur: .28s; }
